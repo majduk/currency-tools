@@ -51,5 +51,11 @@ with urllib.request.urlopen('https://www.santander.pl/klient-indywidualny/karty-
 
 parser.feed(html)
 timestamp = datetime.datetime.now()
-print("%s;%s;%s" % (timestamp.strftime("%Y-%m-%d %H:%M:%S"),parser.rates['USD / PLN']['sell'],parser.rates['USD / PLN']['buy']))
+for currency in ['USD', 'CHF']:
+  rate = "%s / PLN" % currency
+  line ="%s;%s;%s\n" % (timestamp.strftime("%Y-%m-%d %H:%M:%S"),parser.rates[rate]['sell'],parser.rates[rate]['buy'])
+  fname = "/tmp/%s-PLN.csv" % currency
+  with open(fname,'a+') as f:
+    f.write(line)
+
 
