@@ -4,6 +4,7 @@ from html.parser import HTMLParser
 from pprint import pprint
 import urllib.request
 import datetime
+import json
 
 class SantanderHTMLParser(HTMLParser):
   in_sell_rate = False
@@ -45,10 +46,25 @@ class SantanderHTMLParser(HTMLParser):
       self.in_sell_rate = False
       self.in_buy_rate = False
 
+def send_notification(currency, rate):
+  with open('api_key.txt') as keyfile:
+    api_key = keyfile.read()
+  body = {"value1":currency,"value2": rate }
+  url = 'https://maker.ifttt.com/trigger/currency/with/key/{}'.format(api_key)
+  req = urllib.request.Request(url)
+  req.add_header('Content-Type', 'application/json; charset=utf-8')
+  jsondata = json.dumps(body)
+  jsondataasbytes = jsondata.encode('utf-8')
+  req.add_header('Content-Length', len(jsondataasbytes))
+  response = urllib.request.urlopen(req, jsondataasbytes)
+
+
+## MAIN ##
+with open('alerts.json') as alerts_file:
+  alerts = json.load(alerts_file)
 parser = SantanderHTMLParser()
 with urllib.request.urlopen('https://www.santander.pl/klient-indywidualny/karty-platnosci-i-kantor/kantor-santander') as r:
   html = str(r.read())
-
 parser.feed(html)
 timestamp = datetime.datetime.now()
 for currency in ['USD', 'CHF']:
@@ -58,4 +74,7 @@ for currency in ['USD', 'CHF']:
   with open(fname,'a+') as f:
     f.write(line)
 
-
+  if parser.rates[rate]['sell'] < alerts[currency]['sell']:
+    send_notification(currency, parser.rates[rate]['sell'])
+  if parser.rates[rate]['buy'] > alerts[currency]['buy']:
+    send_notification(currency, parser.rates[rate]['buy'])
