@@ -47,7 +47,7 @@ class SantanderHTMLParser(HTMLParser):
       self.in_buy_rate = False
 
 def send_notification(currency, rate):
-  with open('api_key.txt') as keyfile:
+  with open('/home/ubuntu/currency-tools/api_key.txt') as keyfile:
     api_key = keyfile.read()
   body = {"value1":currency,"value2": rate }
   url = 'https://maker.ifttt.com/trigger/currency/with/key/{}'.format(api_key)
@@ -60,7 +60,7 @@ def send_notification(currency, rate):
 
 
 ## MAIN ##
-with open('alerts.json') as alerts_file:
+with open('/home/ubuntu/currency-tools/alerts.json') as alerts_file:
   alerts = json.load(alerts_file)
 parser = SantanderHTMLParser()
 with urllib.request.urlopen('https://www.santander.pl/klient-indywidualny/karty-platnosci-i-kantor/kantor-santander') as r:
@@ -70,7 +70,7 @@ timestamp = datetime.datetime.now()
 for currency in ['USD', 'CHF']:
   rate = "%s / PLN" % currency
   line ="%s;%s;%s\n" % (timestamp.strftime("%Y-%m-%d %H:%M:%S"),parser.rates[rate]['sell'],parser.rates[rate]['buy'])
-  fname = "/tmp/%s-PLN.csv" % currency
+  fname = "/home/ubuntu/%s-PLN.csv" % currency
   with open(fname,'a+') as f:
     f.write(line)
 
