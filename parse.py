@@ -74,7 +74,7 @@ for currency in ['USD', 'CHF']:
   with open(fname,'a+') as f:
     f.write(line)
 
-  if parser.rates[rate]['sell'] < alerts[currency]['sell']:
+  if parser.rates[rate]['sell'] > alerts[currency]['sell']:
     send_notification(currency, parser.rates[rate]['sell'])
-  if parser.rates[rate]['buy'] > alerts[currency]['buy']:
+  if parser.rates[rate]['buy'] < alerts[currency]['buy']:
     send_notification(currency, parser.rates[rate]['buy'])
